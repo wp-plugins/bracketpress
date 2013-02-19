@@ -1,8 +1,36 @@
 <h1>Manage Teams</h1>
-<br/>
+<div class="updated">
+<p>
+    Don't want to mess with data entry? Rather have a beer than update scoring during the tournament?
+    The <a href="http://www.bracketpress.com/downloads/bracketpress-pro-data-feed/" target="store">BracketPress Pro Data Plugin</a> automatically gives you sample data,
+    (from 2012), PLUS updates your teams with 2013 on Selection Data.
+</p>
+<p>
+    Every time a game is played, the Pro
+    Plugin updates your master bracket, re-calculates scoring, and optionally notifies your users of their
+    scores - <i>plus much more!</i>. Note: All features may not be available until after March 10th.
+</p>
+<p>
+<center>
+<table width=70%>
+<tr><td><li>Automatically populate teams and seeds on Selection Sunday</li></td><td><li>2012 Data Pre-loaded for Testing</li></td><td><li>Premium Support Included w/ PRO</li></td></tr>
+<tr><td><li>Automatic Updates of Game Winners and Scores</li></td><td><li>Automatic Re-calculations of Scoring</li></td><td><li>Exclusive Pro Member Forum</li></td></tr>
+<tr><td><li>Optional User Notifications of Updates</li></td><td><li>Access to Add-Ons Before the Public</li></td><td><li>Develop Chat Invitations</li></td></tr>
+</table>
+</center>
+
+</p>
+<p>
+   <a href="http://www.bracketpress.com/downloads/bracketpress-pro-data-feed/" target="store">Go Pro! Now</a>
+</p>
+</div>
+<p>
+    Or, enter the team names, below:
+</p>
 <form id="bracket_fillout_form" name="bracket_fillout_form" method="post">
     <table cellpadding="10px">
-        <?php
+
+    <?php
 
         $team_info = queries::readBracketData();
         $number_of_teams = queries::getTeamCount();

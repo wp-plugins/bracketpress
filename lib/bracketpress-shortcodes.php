@@ -1,32 +1,41 @@
 <?php
+/**
+ * Bracketpress Shortcodes
+ */
 
 /**
  * Display the bracket.
+ *
+ * [bracketpress_shortcode_display]
  *
  * Since shortcodes run late in the cycle, it pulls the pre-generated content
  * from the class, runs it yet-again through the shortcode system, and
  * displays it
  *
  */
-function bracketpress_shortcode_display() {
-    print do_shortcode(bracketpress()->getContent());
-    return;
+function bracketpress_shortcode_display($atts) {
+    return bracketpress()->getContent();
 }
 add_shortcode( 'bracketpress_display_bracket', 'bracketpress_shortcode_display' );
 
+/**
+ * For logged in users, lists the brackets they own
+ * and links to view and edit.
+ *
+ * [bracketpress_edit]
+ *
+ * @todo create new shortcode that does the same using CSS.
+ *
+ * @param $args
+ * @return string
+ */
 
-function bracketpress_shortcode_doscoring() {
-    print bracketpress()->score();
-}
-add_shortcode( 'bracketpress_doscoring', 'bracketpress_shortcode_doscoring' );
-
-function bracketpress_shortcode_edit($args) {
+function bracketpress_shortcode_edit($atts) {
 
     $user_id = get_current_user_id();
 
     if (! $user_id) {
-        print "You are not logged in, so can't edit your bracket. Please create an account to continue.";
-        return;
+        return  "You are not logged in, so can't edit your bracket. Please create an account to continue.";
     }
 
     $author_query = array('posts_per_page' => '-1','author' => $user_id, 'post_type' => 'brackets');
@@ -36,8 +45,7 @@ function bracketpress_shortcode_edit($args) {
     ob_start();
 
     if (count($posts) == 0) {
-        print "Sorry, you don't have any brackets. Please sign out then re-sign in, or contact your administrator for help.";
-        return;
+        return "Sorry, you don't have any brackets. Please sign out then re-sign in, or contact your administrator for help.";
     } else if (count($posts) == 1) {
         // Shortcodes run too late in the process, so we cannot redirect without warnings / errors.
         // Do nothing
@@ -47,42 +55,100 @@ function bracketpress_shortcode_edit($args) {
         // print "Uh oh! More than one post connected to your Id. What to do, what to do? Show you all, or just use the first one and ignore the rest? Or check admin settings?";
     }
 
-    print "My Brackets\n<table width='40%' align='center'>\n";
+    print "My Brackets\n<table width='60%'>\n";
     foreach ($posts as $post) {
         $link = bracketpress()->get_bracket_permalink($post->ID);
         $link_edit = bracketpress()->get_bracket_permalink($post->ID, true);
-        print "<tr><td>{$post->post_title}</td><td width='20'><a href='$link'>View</a></td><td width='20'><a href='$link_edit'>Edit</a></td></tr>\n";
-//        print "<tr><td colspan=3><pre>" . print_r($post, true) . "</pre></td></tr>\n";
+        print "<tr><td>{$post->post_title}</td><td width='20%'><a href='$link'>View</a>&nbsp;</td><td width='20%'><a href='$link_edit'>Edit</a></td></tr>\n";
     }
 
     print "</table>\n";
     $output = ob_get_clean();
-    echo do_shortcode($output);
-
-    return;
+    return $output;
+;
 }
 add_shortcode( 'bracketpress_edit', 'bracketpress_shortcode_edit' );
 
 
+/**
+ * [bracketpress_all_brackets] or
+ * [bracketpress_all_bracckets orderby='score' posts_per_page="10"]
+ *
+ * Note: If scoring has not been run, or a bracket has no score
+ * then it will NOT show up if the orderby score clause is used.
+ *
+ * this is a limitation of wordpress where posts without the requested
+ * meta information are not returned.
+ *
+ * @return string
+ */
 
 //Displays the excerpt of all brackets.  Since we don't have anyting being placed into the
 //excerpt yet.  This shortcode shouldn't be used.
-add_shortcode( 'bracketpress_all_brackets', 'bracketpress_shortcode_all_brackets' );
 
-function bracketpress_shortcode_all_brackets() {
+
+function bracketpress_shortcode_all_brackets($atts) {
+
+    extract( shortcode_atts( array(
+        'orderby' => 'default',
+        'posts_per_page' => 10,
+    ), $atts ) );
 
     $args = array(
         'post_type' => 'brackets',
-        'posts_per_page' => 5,//get_option( 'posts_per_page' ), // you can assign 15
+        'posts_per_page' => $posts_per_page,
         'paged'	=> get_query_var( 'paged' ) ? get_query_var( 'paged' ) : 1,
     );
 
-    $wp_query = new WP_Query($args);
+    if ($orderby == 'score') {
+        $args['meta_key'] = 'score';
+        $args['orderby'] = 'meta_value_num';
+    }
 
-    if ( $wp_query->have_posts() ) :
-        while ($wp_query->have_posts()) : $wp_query->the_post();
-            the_excerpt();
-        endwhile;
+
+
+    $wp_query = new WP_Query($args);
+    ob_start();
+
+    if ($wp_query->have_posts()) {
+
+
+        $posts = $wp_query->get_posts();
+        print "<table>\n";
+        foreach ($posts as $post) {
+            $author_q =  get_user_by('id', $post->post_author);
+            $author =  $author_q->data;
+            $author_meta_q  = get_user_meta($post->post_author);
+            foreach ($author_meta_q as $key => $value) {
+                $author->$key = $author_meta_q[$key][0];
+            }
+            $link = bracketpress()->get_bracket_permalink($post->ID);
+            $score = get_post_meta($post->ID, 'score', true);
+            if (!$score ) {
+                $score = 'Unscored';
+            }
+            print "
+            <tr>
+              <td><a href='{$link}'>{$post->post_title}</a></td>
+              <td>{$author->display_name}</td>
+              <td>{$author->first_name}</td>
+              <td>{$author->last_name[0]}</td>
+              <td>{$score}</td>
+            </tr>";
+
+        }
+        print "</table>\n";
+
+
+/*
+        while ($wp_query->have_posts()) {
+
+
+            print_r($post);
+            $title = $post->title;
+            print $title;
+        }
+*/
 
         $big = 999999999; // need an unlikely integer
         echo '<div class="pagination">';
@@ -94,9 +160,11 @@ function bracketpress_shortcode_all_brackets() {
             'total' => $wp_query->max_num_pages
         ) );
         echo '</div>';
-    else: ?>
-    No brackets were found.
-    <?php endif ?>
-<?php
-}
 
+    } else {
+        print "No brackets were found.\n";
+    }
+
+    return ob_get_clean();
+}
+add_shortcode( 'bracketpress_all_brackets', 'bracketpress_shortcode_all_brackets' );
