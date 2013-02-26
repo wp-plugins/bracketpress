@@ -24,6 +24,7 @@ class BracketPressMatchList {
 
     var $winners;
     var $matches;
+    var $post_id;
 
     static $bracketpress_matches_order = array(
         array(1, 16),
@@ -36,21 +37,25 @@ class BracketPressMatchList {
         array(2, 15)
     ) ;
 
-    function __construct($post_id) {
+    function __construct($post_id, $clear = false) {
         global $wpdb;
 
         if (!self::$teams) {
           self::getTeamList();
         }
 
-        if (! isset(self::$winners_list[$post_id])) {
+        $this->post_id = $post_id;
+
+        if ($clear || ! isset(self::$winners_list[$post_id])) {
             $table_match = bracketpress()->getTable('match');
             $sql = $wpdb->prepare("SELECT match_id, concat('match', match_id) as match_ident, winner_id, points_awarded FROM $table_match WHERE post_id=%d order by match_id", $post_id);
             self::$winners_list[$post_id] = $wpdb->get_results($sql);
+
         }
         $this->winners = self::$winners_list[$post_id];
+        do_action('bracketpress_load_post', array('post_id' => $post_id, 'winners' => $this->winners));
 
-        if (! isset(self::$matches_list[$post_id])) {
+        if ($clear || ! isset(self::$matches_list[$post_id])) {
             $matches = array();
             for ($i = 1; $i <= self::$num_matches; $i++) {
                 $match = self::find_match($this->winners, $i);
@@ -60,6 +65,28 @@ class BracketPressMatchList {
         }
 
         $this->matches = self::$matches_list[$post_id];
+    }
+
+    function randomize() {
+        global $wpdb;
+
+        $table_match = bracketpress()->getTable('match');
+
+        // for each game
+        for ($i = 1; $i < 64; $i++) {
+
+            $match = $this->getMatch($i);
+            if (! $match->winner_id) {
+
+                $teams = array($match->getTeam1Id(), $match->getTeam2Id() );
+                shuffle($teams);
+                $winner = array_pop($teams);
+                $match->winner_id = $winner;
+                $sql = $wpdb->prepare("insert ignore into $table_match (post_id, match_id, winner_id) values (%d, %d, %d)", $this->post_id, $i, $winner);
+                $wpdb->query($sql);
+            }
+        }
+
     }
 
     function getWinners() {
@@ -158,6 +185,28 @@ class BracketPressMatchList {
         if ($id > 62)  $next_game = null;
 
         return $next_game;
+    }
+
+    static function getRound($id) {
+
+        if ($id == 63) return 6; // Final game
+        if ($id == 62) return 5;
+        if ($id == 61) return 5; // Final Four
+
+        $region = (int) ( ($id-1) / 15) + 1;
+        $base = ($region -1) * 15;
+        $game_number = ($id - $base);
+
+        switch ($game_number) {
+            case 15: return 4;
+            case 14:
+            case 13: return 3;
+            case 12:
+            case 11:
+            case 10:
+            case 9:  return 2;
+            default: return 1;
+        }
     }
 
     /**

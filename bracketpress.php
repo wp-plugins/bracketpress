@@ -4,7 +4,7 @@ Plugin Name: BracketPress
 Description: Run and score a tournament bracket pool.
 Author: Scott Hack and Nick Temple
 Author URI: http://www.bracketpress.com
-Version: 1.0.4
+Version: 1.0.5
 */
 
 /*
@@ -82,8 +82,13 @@ final class BracketPress {
     var $default_shortcode;
 
 
+
+
     // The curent post query
-     var $post;
+    var $post;
+    /** @var BracketPressMatchList */
+    var $matchlist;
+
     // Generated content to place in the post
     var $content;
 
@@ -338,6 +343,7 @@ final class BracketPress {
                 'thumbnail',
                 'custom-field',
                 'tags',
+                'comments',
                 'author'
             ),
         );
@@ -489,6 +495,7 @@ final class BracketPress {
     function get_score($id = null) {
         if (!$id) $id = $this->post->ID;
         $score = get_post_meta($id, 'score', true);
+        if ($score == '') $score = "Unscored";
         return $score;
     }
 
@@ -537,18 +544,20 @@ final class BracketPress {
 
         // Get all the bracket posts
         //$table = $wpdb->prefix . 'posts';
-        $sql = "select post_id, sum(points_awarded) as score from $table_match group by post_id"; // where post_type='brackets'";
+        $sql = "select post_id, sum(points_awarded) as score from $table_match group by post_id";
         print "$sql\n";
         $brackets = $wpdb->get_results($sql);
         print_r($brackets);
         foreach ($brackets as $bracket) {
-              update_post_meta($bracket->post_id, 'score', $bracket->score);
+            $old_score = get_post_meta($bracket->post_id, 'score');
+            update_post_meta($bracket->post_id, 'score', $bracket->score);
+            do_action('bracketpress_event_updatescore', array('post_id' => $bracket->post_id, 'old_score' => $old_score, 'score' => $bracket->score));
         }
 
        $debug = ob_get_clean();
 
        $log = "<pre>\n$debug</pre>";
-//       print $log;
+       // print $log;
 
 
        return $log;
@@ -568,20 +577,7 @@ final class BracketPress {
     function getMatchDetails($match_id) {
         $match = new stdClass();
 
-        $round = 0; // initialize to nonsense to catch errors
-
-        if ($match_id == 63) $round = 6;
-        if ($match_id == 61 || $match_id == 62) $round = 5;
-
-        // we 15 games per bracket - reduce
-        if ($match_id < 61) {
-            $match_id = $match_id % 15; // the first 15 are what count
-        }
-        if ($match_id < 9) $round = 1;
-        if ($match_id > 8 && $match_id < 13) $round = 2;
-        if ($match_id == 13 || $match_id = 14) $round = 3;
-        if ($match_id == 15) $round = 4;
-
+        $round = BracketPressMatchList::getRound($match_id);
 
         switch($round) {
             case 1: $match->points = $this->get_option('points_first_round'); break;
@@ -592,6 +588,8 @@ final class BracketPress {
             case 6: $match->points = $this->get_option('points_sixth_round'); break; // Final game
             default: throw new Exception("Match $match_id doesn't exist for round $round");
         }
+
+        print "Round: $match_id: $round: {$match->points}\n";
 
         return $match;
     }
@@ -670,6 +668,7 @@ final class BracketPress {
 
             $is_edit  = $post_query->get( 'edit' );
             $post = array_pop($posts);
+            $post->combined_score = get_post_meta($post->ID, 'combined_score', true);
             $this->post = $post;
 
             if ($is_edit) {
@@ -721,6 +720,7 @@ final class BracketPress {
      */
     function bracket_edit($post) {
         $this->post = $post;
+        $this->matchlist = new BracketPressMatchList($post->ID);
 
         if (!$this->is_bracket_owner()) {
             $this->bracket_display($post, '<div class="updated"><p>You must be signed in to edit this bracket.</p></div>');
@@ -729,7 +729,13 @@ final class BracketPress {
 
         $close = $this->get_bracket_close_time();
         $date = strftime("%Y-%m-%d %H:%M:%S", $close);
-        $message = "The brackets will close on $date.<br>";
+
+        $date_format = get_option( 'date_format' );
+        $time_format = get_option( 'time_format' );
+        $date = date($date_format, $close) . " at " . date($time_format, $close);
+
+        $datediff = human_time_diff(time(), $close);
+        $message = "The bracket will close for editing in $datediff on $date.<br>";
 
 
         if ($post->ID != $this->get_option('master_id'))
@@ -740,14 +746,29 @@ final class BracketPress {
 
         //@todo move this out to an action that can be overridden
         if (isset($_POST['cmd_bracketpress_save'])) {
-            wp_update_post(array(
+
+            $post_data = array(
                 'ID' => $post->ID,
                 'post_title' => $_POST['post_title'],
                 'post_excerpt' => $_POST['post_excerpt'],
-            ));
+                'combined_score' => $_POST['combined_score'],
+            );
 
-            $this->post->post_title = $_POST['post_title'];
-            $this->post->post_excerpt = $_POST['post_excerpt'];
+            $post_data = apply_filters('bracketpress_update_bracket', $post_data );
+
+
+            wp_update_post($post_data);
+            update_post_meta($post_data['ID'], 'combined_score', $post_data['combined_score']);
+
+            $this->post->post_title = $post_data['post_title'];
+            $this->post->post_excerpt = $post_data['post_excerpt'];
+            $this->post->combined_score = $post_data['combined_score'];
+        }
+
+        if (isset($_POST['cmd_bracketpress_randomize'])) {
+            $this->matchlist->randomize();
+            $this->matchlist = new BracketPressMatchList($post->ID, true); // Reload the bracket
+            do_action('bracketpress_event_randomize');
         }
 
         $file = apply_filters( 'bracketpress_template_edit',   $this->themes_dir .  'bracket_edit.php' );
@@ -771,6 +792,8 @@ final class BracketPress {
     function bracket_display($post, $message = '') {
 
         $this->post = $post;
+        $this->matchlist = new BracketPressMatchList($post->ID);
+
         $file = apply_filters( 'bracketpress_template_display',   $this->themes_dir .  'bracket_display.php' );
 
         ob_start();

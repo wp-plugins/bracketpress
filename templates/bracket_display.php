@@ -33,36 +33,57 @@ add_action('wp_enqueue_scripts', 'bracketpress_display_enqueue_css');
 
 function bracketpress_partial_display_bracket($this_match_id, $m, $team1, $team2, $final = false, $match = null) {
 
-    // Special id tags to make the final bracket work
-    if ($final) {
-        $id1 = "id='slot127'";
-        $id2 = "id='slot128'";
-    } else {
-        $id1 = '';
-        $id2 = '';
+    // Find out if we won or lost the previous match
+    $class1 = '';
+    $class2 = '';
+
+    // Final match CSS
+    $final_match_2 = $final_match_1 = '';
+    $id1 = $id2 = '';
+    $combined_score = '';
+
+    $prev_match = BracketPressMatchList::getPreviousMatch($this_match_id);
+    $matchlist = bracketpress()->matchlist;
+
+    if ($prev_match) {
+        $prev_match[0] = $matchlist->getMatch($prev_match[0]);
+        $prev_match[1] = $matchlist->getMatch($prev_match[1]);
+
+        $x1 = print_r($prev_match[0], true);
+        $x2 = print_r($prev_match[1], true);
+
+
+        $x1 = $prev_match[0]->points_awarded;
+        $x2 = $prev_match[1]->points_awarded;
+
+        if ($prev_match[0]->points_awarded == '0') $class1 = 'lost';
+        if ($prev_match[0]->points_awarded > 0) $class1 = 'won';
+
+        if ($prev_match[1]->points_awarded == '0') $class2 = 'lost';
+        if ($prev_match[1]->points_awarded > 0) $class2 = 'won';
     }
 
-/*
-    $class = '';
-    if ($match) {
-        if ($match->points_awarded > 0) {
-            $class = 'won';
-        } else if ($match->points_awarded === 0) {
-            $class = 'lost';
+    // Special id css display tags to make the final bracket work visually
+    if ($final) {
+
+        if ($match->winner_id) {
+            if ($match->winner_id == $team1->ID) $final_match_1 = 'final_pick';
+            if ($match->winner_id == $team2->ID) $final_match_2 = 'final_pick';
         }
+        $id1 = "id='slot127'";
+        $id2 = "id='slot128'";
     }
-*/
     ?>
 <div id="match<?php print $this_match_id ?>" class="match m<?php print $m ?>">
     <p class="slot slot1 team_<?php echo $team1->ID ?>" <?php echo $id1 ?>>
-            <span class="seed <?php echo $class ?>">
+            <span class="seed <?php echo $class1 . ' ' . $final_match_1 ?>">
                 <?php if ($team1) { ?>
                 <span class="team_ids"> <?php echo $team1->seed; ?></span> <?php print bracketpress_display_name($team1->name) ?></span>
             <?php } ?>
                 <em class="score"><?php  ?></em>
     </p>
     <p class="slot slot2 team_<?php echo $team1->ID ?>" <?php echo $id2 ?>>
-            <span class="seed <?php echo $class ?>">
+            <span class="seed <?php echo $class2 . ' ' . $final_match_2 ?>">
                 <?php if ($team2) { ?>
                 <span class="team_ids"> <?php echo $team2->seed; ?></span> <?php print bracketpress_display_name($team2->name) ?>
             </span>
@@ -180,11 +201,12 @@ function bracketpress_display_rounds($num, $name) {
 }
 ?>
 <font size="+1">Current Bracket Score: <?php print bracketpress()->get_score(); ?></font>
-
 <?php   if (bracketpress()->is_bracket_owner()) {  ?>
 <a href="<?php print bracketpress()->get_bracket_permalink(bracketpress()->post->ID, true)?>" style="float: right;">Edit Bracket</a>
 <?php } ?>
-
+<br>
+Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->post->combined_score); ?>
+<?php // print "<pre>" . print_r(bracketpress()->post, true) . "</pre>"; ?>
 <div class="bracket standings light-blue">
 <div id="content-wrapper">
 <div id="table">
@@ -204,21 +226,6 @@ function bracketpress_display_rounds($num, $name) {
             <th class="round_2"> 2nd ROUND</th>
             <th class="round_1 current"> 1st ROUND</th>
         </tr>
-<!--
-        <tr>
-            <td class="current"> March 18-19</td>
-            <td> March 20-21</td>
-            <td> March 25-26</td>
-            <td> March 27-28</td>
-            <td> April 3</td>
-            <td> April 5</td>
-            <td> April 3</td>
-            <td> March 27-28</td>
-            <td> March 25-26</td>
-            <td> March 20-21</td>
-            <td class="current"> March 18-19</td>
-        </tr>
--->
     </table>
 </div>
 
@@ -258,7 +265,7 @@ function bracketpress_display_rounds($num, $name) {
 
         <div class="region">
         <?php
-            $matchlist = new BracketPressMatchList(bracketpress()->post->ID);
+            $matchlist = bracketpress()->matchlist;
 
             for($x = 1; $x <3; $x++) {
                 $match_id = 60 + $x;
