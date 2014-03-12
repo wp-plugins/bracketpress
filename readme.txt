@@ -3,7 +3,7 @@ Contributors: ntemple, scotthack
 Donate link: http://www.bracketpress.com/donate
 Tags: ncaa, bracket, march madness, brackets, bracket pool, tournament, basketball, sports, gambling, betting
 Requires at least: 3.5.0
-Tested up to: 3.5.1
+Tested up to: 3.8.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -51,7 +51,11 @@ brought it to life. See the file credits.txt for a full list of contributors.
 
 == Changelog ==
 
-= 1.4.1 =
+= 1.6.0 =
+* Reworked the labels and ability to change the location of the regions.
+* Fixed javascript issues with older browsers related to final four selections.
+
+= 1.4.4 =
 * Add class to bracketpress shortcode for easier styling (Brandon Kraft)
 * Cleaned up commented out HTML that IE seems to be choking on
 
@@ -107,9 +111,6 @@ brought it to life. See the file credits.txt for a full list of contributors.
 * First public release
 * Completed initial development
 == Upgrade Notice ==
-
-= 1.4.1 =
-* minor update to resolve some reported issues with IE
 
 = 1.4.0 =
 * Critical update for 2013: the region order and final 4 matchup has been changed from 2012. Please update now!

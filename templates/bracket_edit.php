@@ -227,10 +227,10 @@ function bracketpress_partial_show_region($region, $region_name, $match) {
 <div id="tabs" style="position:relative;">
     <div style="position:absolute;left:0;top:64px;width:99%;height:643px;display:none;background:#fff;opacity:0.4;z-index:999;" id="loader-div"><img src="<?php	echo  BRACKETPRESS_IMAGES;?>ajax-loader.gif" style="position:absolute;left:50%;top:50%;" /></div>
     <ul>
-        <li><a href="#reg-1">SOUTH</a></li>
-        <li><a href="#reg-2">WEST</a></li>
-        <li><a href="#reg-3">EAST</a></li>
-        <li><a href="#reg-4">MIDWEST</a></li>
+        <li><a href="#reg-1"><?php echo strtoupper( get_option( 'bracketpress_regionname_1', 'SOUTH') ); ?></a></li>
+        <li><a href="#reg-2"><?php echo strtoupper( get_option( 'bracketpress_regionname_2', 'WEST') ); ?></a></li>
+        <li><a href="#reg-3"><?php echo strtoupper( get_option( 'bracketpress_regionname_3', 'EAST') ); ?></a></li>
+        <li><a href="#reg-4"><?php echo strtoupper( get_option( 'bracketpress_regionname_4', 'MIDWEST') ); ?></a></li>
         <li><a href="#reg-5">FINALS</a></li>
     </ul>
 

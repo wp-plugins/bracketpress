@@ -85,8 +85,11 @@ function set_team(match_id, slot, team_id, winner) {
     // Update the options. This needs work.
     var select = $('#get_team_selector_match' + match_id);
     var selected = (team_id == winner);
-    var option = new Option(seed + ' ' + team_name, team_id, selected, selected);
-    select.append(option);
+    select
+         .append($("<option></option>")
+         .attr("value",team_id)
+         .attr("selected",selected)
+         .text(team_name)); 
 }
 
 // NLT, given a match, return the data (winner)

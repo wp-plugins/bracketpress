@@ -200,20 +200,20 @@ function bracketpress_display_rounds($num, $name) {
 <div id="round<?php print $num ?>" class="round">
     <h3>Round <?php print $name ?> (2013 NCAA Men's Basketball Tournament)</h3>
     <div class="region region1">
-        <h4 class="region1">MIDWEST</h4>
-        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_MIDWEST); ?>
+        <h4 class="region1"><?php echo BRACKETPRESS_REGION_NAME_1; ?></h4>
+        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_1); ?>
     </div>
     <div class="region region2">
-        <h4 class="region2">WEST</h4>
-        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_WEST); ?>
+        <h4 class="region2"><?php echo BRACKETPRESS_REGION_NAME_2; ?></h4>
+        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_2); ?>
     </div>
     <div class="region region3">
-        <h4 class="region3"> SOUTH </h4>
-        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_SOUTH); ?>
+        <h4 class="region3"><?php echo BRACKETPRESS_REGION_NAME_3; ?></h4>
+        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_3); ?>
     </div>
     <div class="region region4">
-        <h4 class="region4">EAST</h4>
-        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_EAST); ?>
+        <h4 class="region4"><?php echo BRACKETPRESS_REGION_NAME_4; ?></h4>
+        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_4); ?>
     </div>
 </div>
 <?php
@@ -264,20 +264,20 @@ Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->po
         </h3>
 
         <div class="region region1">
-            <h4 class="region1 first_region">MIDWEST</h4>
-            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_MIDWEST) ?>
+            <h4 class="region1 first_region"><?php echo BRACKETPRESS_REGION_NAME_1; ?></h4>
+            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_1) ?>
         </div>
         <div class="region region2">
-            <h4 class="region2 first_region">WEST</h4>
-            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_WEST) ?>
+            <h4 class="region2 first_region"><?php echo BRACKETPRESS_REGION_NAME_2; ?></h4>
+            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_2) ?>
         </div>
         <div class="region region3">
-            <h4 class="region3 first_region">SOUTH</h4>
-            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_SOUTH) ?>
+            <h4 class="region3 first_region"><?php echo BRACKETPRESS_REGION_NAME_3; ?></h4>
+            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_3) ?>
         </div>
         <div class="region region4">
-            <h4 class="region4 first_region">EAST</h4>
-            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_EAST) ?>
+            <h4 class="region4 first_region"><?php echo BRACKETPRESS_REGION_NAME_4; ?></h4>
+            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_4) ?>
         </div>
 
 
@@ -303,15 +303,104 @@ Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->po
              */
 
             $matchlist = bracketpress()->matchlist;
+            $regiondefinition = array(get_option( 'bracketpress_region_1'),get_option( 'bracketpress_region_2'),get_option( 'bracketpress_region_3'),get_option( 'bracketpress_region_4'));
+            
             for($x = 1; $x <3; $x++) {
                 $match_id = 60 + $x;
                 $match = $matchlist->getMatch($match_id);
 
-                $team1 = $match->getTeam1();
-                $team2 = $match->getTeam2();
+                $teama = $match->getTeam1();
+                $teamb = $match->getTeam2(); 
+                //var_dump($team1);
+                $m=null;
+                // if($teama->ID >= "101" && $teama->ID <= "199"){
+                //     $m = 1;
+                //     $match = 61;
+                //     $region_position_def[1] = get_option( 'bracketpress_region_1');
+                // }
+                // if($teama->ID >= "201" && $teama->ID <= "299"){
+                //     $m = 1;
+                //     $match = 61;
+                //     $region_position_def[2] = get_option( 'bracketpress_region_2');
+                // }
+                // if($teama->ID >= "301" && $teama->ID <= "399"){
+                //     $m = 2;
+                //     $match = 62;
+                //     $region_position_def[3] = get_option( 'bracketpress_region_3');
+                // }
+                // if($teama->ID >= "401" && $teama->ID <= "499"){
+                //     $m = 2;
+                //     $match = 62;
+                //     $region_position_def[4] = get_option( 'bracketpress_region_4');
+                // }
 
-                bracketpress_partial_display_bracket($match_id, $x, $team1, $team2, false, $match);
+                
+
+
+
+                switch ($teama->region){
+                    case $regiondefinition[0]:
+                        $match = 61;
+                        $m=1;
+                        $team1 = $teama;
+                    break;
+
+                    case $regiondefinition[1]:
+                        $match = 61;
+                        $m=1;
+                        $team2 = $teama;
+                    break;
+
+                    case $regiondefinition[2]:
+                        $match = 62;
+                        $m=2;
+                        $team3 = $teama;
+                    break;
+
+                    case $regiondefinition[3]:
+                        $match = 62;
+                        $m=2;
+                        $team4 = $teama;
+                    break;
+
+                }
+
+                switch ($teamb->region){
+                    case $regiondefinition[0]:
+                        $match = 61;
+                        $m=1;
+                        $team1 = $teamb;
+                    break;
+
+                    case $regiondefinition[1]:
+                        $match = 61;
+                        $m=1;
+                        $team2 = $teamb;
+                    break;
+
+                    case $regiondefinition[2]:
+                        $match = 62;
+                        $m=2;
+                        $team3 = $teamb;
+                    break;
+
+                    case $regiondefinition[3]:
+                        $match = 62;
+                        $m=2;
+                        $team4 = $teamb;
+                    break;
+
+                }
+
+
+
+        
+                
             }
+            
+            bracketpress_partial_display_bracket($match_id, '1', $team1, $team2, false, '61');
+            bracketpress_partial_display_bracket($match_id, '2', $team3, $team4, false, '62');
+
         ?>
         </div>
     </div>

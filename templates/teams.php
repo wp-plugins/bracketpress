@@ -32,7 +32,92 @@
 <?php } else {
 ?>
 <p>BracketPress Pro is installed and is managing your team names. Please note changes below will be overwritten during the tournament. </p>
-<?php } ?>
+<?php } 
+
+if($_REQUEST['changeposition'] && check_admin_referer( 'bracketpress_changeposition' )){
+   update_option( 'bracketpress_region_1', $_REQUEST['position1_value']);
+    update_option( 'bracketpress_regionname_1', $_REQUEST['position1_name']);
+
+    update_option( 'bracketpress_region_2', $_REQUEST['position2_value']);
+    update_option( 'bracketpress_regionname_2', $_REQUEST['position2_name']);
+
+    update_option( 'bracketpress_region_3', $_REQUEST['position3_value']);
+    update_option( 'bracketpress_regionname_3', $_REQUEST['position3_name']);
+
+    update_option( 'bracketpress_region_4', $_REQUEST['position4_value']);
+    update_option( 'bracketpress_regionname_4', $_REQUEST['position4_name']);
+
+}
+
+?>
+<!--<textarea> --><?php
+$regiondata = get_option( 'bracketpress_region_1', '1').",".get_option( 'bracketpress_regionname_1', 'SOUTH').",".
+get_option( 'bracketpress_region_2', '2').",".get_option( 'bracketpress_regionname_2', 'WEST').",".
+get_option( 'bracketpress_region_3', '3').",".get_option( 'bracketpress_regionname_3', 'EAST').",".
+get_option( 'bracketpress_region_4', '4').",".get_option( 'bracketpress_regionname_4', 'MIDWEST');
+
+//echo $regiondata;
+
+?>
+
+<!-- </textarea> -->
+<form id="update_region_positions" method="POST">
+<table>
+    <tr>
+        <td>Position 1</td>
+        <td><input type="text" name="position1_name" value="<?php echo get_option( 'bracketpress_regionname_1', 'SOUTH'); ?>"></td>
+        <td>
+            <select name="position1_value">
+                <option value="1" <?php selected( get_option( 'bracketpress_region_1', '1'), 1 ); ?>>1</option>
+                <option value="2" <?php selected( get_option( 'bracketpress_region_1', '1'), 2 ); ?>>2</option>
+                <option value="3" <?php selected( get_option( 'bracketpress_region_1', '1'), 3 ); ?>>3</option>
+                <option value="4" <?php selected( get_option( 'bracketpress_region_1', '1'), 4 ); ?>>4</option>
+            </select>
+        </td>
+        <td></td>
+        <td>Position 3</td>
+        <td><input type="text" name="position3_name" value="<?php echo get_option( 'bracketpress_regionname_3', 'WEST'); ?>"></td>
+        <td>
+            <select name="position3_value">
+                <option value="1" <?php selected( get_option( 'bracketpress_region_3', '1'), 1 ); ?>>1</option>
+                <option value="2" <?php selected( get_option( 'bracketpress_region_3', '2'), 2 ); ?>>2</option>
+                <option value="3" <?php selected( get_option( 'bracketpress_region_3', '3'), 3 ); ?>>3</option>
+                <option value="4" <?php selected( get_option( 'bracketpress_region_3', '4'), 4 ); ?>>4</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Position 2</td>
+        <td><input type="text" name="position2_name" value="<?php echo get_option( 'bracketpress_regionname_2', 'EAST'); ?>"></td>
+        <td>
+            <select name="position2_value">
+                <option value="1" <?php selected( get_option( 'bracketpress_region_2', '1'), 1); ?>>1</option>
+                <option value="2" <?php selected( get_option( 'bracketpress_region_2', '2' ), 2); ?>>2</option>
+                <option value="3" <?php selected( get_option( 'bracketpress_region_2', '3' ), 3); ?>>3</option>
+                <option value="4" <?php selected( get_option( 'bracketpress_region_2', '4' ), 4); ?>>4</option>
+            </select>
+        </td>
+        <td></td>
+        <td>Position 4</td>
+        <td><input type="text" name="position4_name" value="<?php echo get_option( 'bracketpress_regionname_4', 'MIDWEST'); ?>"></td>
+        <td>
+            <select name="position4_value">
+                <option value="1" <?php selected( get_option( 'bracketpress_region_4', '4'), 1 ); ?>>1</option>
+                <option value="2" <?php selected( get_option( 'bracketpress_region_4', '4'), 2 ); ?>>2</option>
+                <option value="3" <?php selected( get_option( 'bracketpress_region_4', '4'), 3 ); ?>>3</option>
+                <option value="4" <?php selected( get_option( 'bracketpress_region_4', '4'), 4 ); ?>>4</option>
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td colspan="8" style="text-align:right;"><input type="submit" value="Save Position Changes"></td>
+    </tr>
+</table>
+<?php wp_nonce_field( 'bracketpress_changeposition' ); ?>
+<input type="hidden" name="changeposition" value="TRUE">
+</form>
+
+
 
 <form id="bracket_fillout_form" name="bracket_fillout_form" method="post">
     <table cellpadding="10px">
@@ -73,10 +158,10 @@
                     <select id="region_<?php echo $y; ?>" name="region_<?php echo $y; ?>">
                         <?php
                         echo "<option value=''>Choose a region</option>";
-                        echo "<option value='1' {$selected_region[1]}>South</option>";
-                        echo "<option value='2' {$selected_region[2]}>West</option>";
-                        echo "<option value='3' {$selected_region[3]}>East</option>";
-                        echo "<option value='4' {$selected_region[4]}>Midwest</option>";
+                        echo "<option value='1' {$selected_region[1]}>".BRACKETPRESS_REGION_NAME_1."</option>";
+                        echo "<option value='2' {$selected_region[2]}>".BRACKETPRESS_REGION_NAME_2."</option>";
+                        echo "<option value='3' {$selected_region[3]}>".BRACKETPRESS_REGION_NAME_3."</option>";
+                        echo "<option value='4' {$selected_region[4]}>".BRACKETPRESS_REGION_NAME_4."</option>";
                         ?>
                     </select>
                 </td>
