@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: BracketPress (Scott Hack Special Edition)
+Plugin Name: BracketPress
 Description: Run and score a tournament bracket pool.
 Author: Scott Hack and Nick Temple
 Author URI: http://www.bracketpress.com
-Version: 1.6.0
+Version: 1.6.1
 */
 
 /*
