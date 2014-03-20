@@ -51,6 +51,12 @@ brought it to life. See the file credits.txt for a full list of contributors.
 
 == Changelog ==
 
+= 1.6.2 =
+* Fixed issue with Final Four game matches not populating.
+
+= 1.6.1 =
+* Fixed issue with Final Four game matches not being correct.
+
 = 1.6.0 =
 * Reworked the labels and ability to change the location of the regions.
 * Fixed javascript issues with older browsers related to final four selections.
@@ -137,4 +143,7 @@ brought it to life. See the file credits.txt for a full list of contributors.
 * Charles Griffin
 * Jason Melgoza ( CSS of Bracket )
 * Brandon Kraft
+* Don Hansen ( Logo )
+* Patrick Godbey
+* Jermaine Watkins
 
