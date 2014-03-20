@@ -51,6 +51,9 @@ brought it to life. See the file credits.txt for a full list of contributors.
 
 == Changelog ==
 
+= 1.6.3 =
+* Fixed regression bug while trying to fix Final Four matches.
+
 = 1.6.2 =
 * Fixed issue with Final Four game matches not populating.
 
