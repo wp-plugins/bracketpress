@@ -1,9 +1,9 @@
 === BracketPress ===
-Contributors: ntemple, scotthack
+Contributors: ntemple, scotthack, mrpatg
 Donate link: http://www.bracketpress.com/donate
 Tags: ncaa, bracket, march madness, brackets, bracket pool, tournament, basketball, sports, gambling, betting
 Requires at least: 3.5.0
-Tested up to: 3.8.1
+Tested up to: 4.1.0
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -50,6 +50,14 @@ brought it to life. See the file credits.txt for a full list of contributors.
 4. Viewing a Bracket (before scoring)
 
 == Changelog ==
+
+= 1.7.0 =
+* Removed buggy positioning controls
+* Added and fixed region labeling
+* Corrected bugs causing region names to not reflect changes.
+* Corrected bugs causing initial settings and configuration settings to not be loaded
+* Fixed bug requiring permalink save after installing
+* Fixed bug in final four comparison not returning correct previous match ID's
 
 = 1.6.3 =
 * Fixed regression bug while trying to fix Final Four matches.

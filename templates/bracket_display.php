@@ -31,7 +31,7 @@ add_action('wp_enqueue_scripts', 'bracketpress_display_enqueue_css');
  * @param $team2
  */
 
-function bracketpress_partial_display_bracket($this_match_id, $m, $team1, $team2, $final = false, $match = null) {
+function bracketpress_partial_display_bracket($this_match_id, $m, $team1, $team2, $final = false, $match = null, $final_four = null) {
 
     // Find out if we won or lost the previous match
     $class1 = '';
@@ -82,7 +82,9 @@ function bracketpress_partial_display_bracket($this_match_id, $m, $team1, $team2
         }
         if ($prev_match[1]->points_awarded > 0) $class2 = 'won';
     }
+    if($final_four){       
 
+    }
     // Special id css display tags to make the final bracket work visually
     if ($final) {
 
@@ -198,22 +200,22 @@ function bracketpress_partial_display_round($round, $region) {
 function bracketpress_display_rounds($num, $name) {
     ?>
 <div id="round<?php print $num ?>" class="round">
-    <h3>Round <?php print $name ?> (2013 NCAA Men's Basketball Tournament)</h3>
+    <h3>Round <?php print $name ?> (2015 NCAA Men's Basketball Tournament)</h3>
     <div class="region region1">
-        <h4 class="region1"><?php echo BRACKETPRESS_REGION_NAME_1; ?></h4>
-        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_1); ?>
+        <h4 class="region1"><?php echo get_option( 'bracketpress_regionname_1', 'SOUTH'); ?></h4>
+        <?php bracketpress_partial_display_round($num, get_option( 'bracketpress_region_1', '1')); ?>
     </div>
     <div class="region region2">
-        <h4 class="region2"><?php echo BRACKETPRESS_REGION_NAME_2; ?></h4>
-        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_2); ?>
+        <h4 class="region2"><?php echo get_option( 'bracketpress_regionname_2', 'WEST'); ?></h4>
+        <?php bracketpress_partial_display_round($num, get_option( 'bracketpress_region_2', '2')); ?>
     </div>
     <div class="region region3">
-        <h4 class="region3"><?php echo BRACKETPRESS_REGION_NAME_3; ?></h4>
-        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_3); ?>
+        <h4 class="region3"><?php echo get_option( 'bracketpress_regionname_3', 'EAST'); ?></h4>
+        <?php bracketpress_partial_display_round($num, get_option( 'bracketpress_region_3', '3')); ?>
     </div>
     <div class="region region4">
-        <h4 class="region4"><?php echo BRACKETPRESS_REGION_NAME_4; ?></h4>
-        <?php bracketpress_partial_display_round($num, BRACKETPRESS_REGION_4); ?>
+        <h4 class="region4"><?php echo get_option( 'bracketpress_regionname_4', 'MIDWEST'); ?></h4>
+        <?php bracketpress_partial_display_round($num, get_option( 'bracketpress_region_4', '4')); ?>
     </div>
 </div>
 <?php
@@ -260,25 +262,25 @@ Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->po
     <!-- Bracket -->
     <div id="round1" class="round">
         <h3>
-            Round One (2013 NCAA Men's Basketball Tournament)
+            Round One (2015 NCAA Men's Basketball Tournament)
         </h3>
 
-        <div class="region region1">
-            <h4 class="region1 first_region"><?php echo BRACKETPRESS_REGION_NAME_1; ?></h4>
-            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_1) ?>
-        </div>
-        <div class="region region2">
-            <h4 class="region2 first_region"><?php echo BRACKETPRESS_REGION_NAME_2; ?></h4>
-            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_2) ?>
-        </div>
-        <div class="region region3">
-            <h4 class="region3 first_region"><?php echo BRACKETPRESS_REGION_NAME_3; ?></h4>
-            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_3) ?>
-        </div>
-        <div class="region region4">
-            <h4 class="region4 first_region"><?php echo BRACKETPRESS_REGION_NAME_4; ?></h4>
-            <?php bracketpress_partial_display_seed(BRACKETPRESS_REGION_4) ?>
-        </div>
+         <div class="region region1">
+        <h4 class="region1"><?php echo get_option( 'bracketpress_regionname_1', 'SOUTH') ?></h4>
+        <?php bracketpress_partial_display_seed(get_option( 'bracketpress_region_1', '1')); ?>
+    </div>
+    <div class="region region2">
+        <h4 class="region2"><?php echo get_option( 'bracketpress_regionname_2', 'WEST'); ?></h4>
+        <?php bracketpress_partial_display_seed(get_option( 'bracketpress_region_2', '2')); ?>
+    </div>
+    <div class="region region3">
+        <h4 class="region3"><?php echo get_option( 'bracketpress_regionname_3', 'EAST'); ?></h4>
+        <?php bracketpress_partial_display_seed(get_option( 'bracketpress_region_3', '3')); ?>
+    </div>
+    <div class="region region4">
+        <h4 class="region4"><?php echo get_option( 'bracketpress_regionname_4', 'MIDWEST'); ?></h4>
+        <?php bracketpress_partial_display_seed(get_option( 'bracketpress_region_4', '4')); ?>
+    </div>
 
 
     </div>
@@ -292,7 +294,7 @@ Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->po
 
 
     <div id="round5" class="round">
-        <h3>Round Five (2013 NCAA Men's Basketball Tournament)</h3>
+        <h3>Round Five (2015 NCAA Men's Basketball Tournament)</h3>
 
         <div class="region">
         <?php
@@ -304,9 +306,10 @@ Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->po
 
             $matchlist = bracketpress()->matchlist;
             $regiondefinition = array(get_option( 'bracketpress_region_1'),get_option( 'bracketpress_region_2'),get_option( 'bracketpress_region_3'),get_option( 'bracketpress_region_4'));
-            
-            for($x = 1; $x <3; $x++) {
-                $match_id = 60 + $x;
+            $finalfour_gameids = array('62','61');
+            foreach($finalfour_gameids AS $key=>$match_id) {
+                //$z = 63 - $x;
+                //$match_id = 60 + $z;
                 $match = $matchlist->getMatch($match_id);
 
                 $teama = $match->getTeam1();
@@ -348,13 +351,13 @@ Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->po
                     case $regiondefinition[1]:
                         $match = 61;
                         $m=1;
-                        $team2 = $teama;
+                        $team1 = $teama;
                     break;
 
                     case $regiondefinition[2]:
                         $match = 62;
                         $m=2;
-                        $team3 = $teama;
+                        $team4 = $teama;
                     break;
 
                     case $regiondefinition[3]:
@@ -369,7 +372,7 @@ Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->po
                     case $regiondefinition[0]:
                         $match = 61;
                         $m=1;
-                        $team1 = $teamb;
+                        $team2 = $teamb;
                     break;
 
                     case $regiondefinition[1]:
@@ -387,25 +390,42 @@ Final Game Combined Score Estimate: <?php print  stripslashes(bracketpress()->po
                     case $regiondefinition[3]:
                         $match = 62;
                         $m=2;
-                        $team4 = $teamb;
+                        $team3 = $teamb;
                     break;
 
-                }
-
-
-
-        
+                }    
                 
             }
-            
-            bracketpress_partial_display_bracket($match_id, '1', $team1, $team2, false, '61');
-            bracketpress_partial_display_bracket($match_id, '2', $team3, $team4, false, '62');
+
+
+
+/**
+position 1 61 teamA1
+position 2 61 teamB2
+
+position 3 62 teamA
+position 4 62 teamB
+
+
+*/   
+$winners61 = get_winners_fixed('61');
+$winners62 = get_winners_fixed('62');
+//var_dump($winners61);
+//var_dump($winners62);
+
+// var_dump($team1);
+// var_dump($team2);
+// var_dump($team3);
+// var_dump($team4);
+
+            bracketpress_partial_display_bracket('61', '1', $team1, $team2, false, '61', true);
+            bracketpress_partial_display_bracket('62', '2', $team4, $team3, false, '62', true);
 
         ?>
         </div>
     </div>
     <div id="round6" class="round">
-        <h3> Round Six (2013 NCAA Men's Basketball Tournament) </h3>
+        <h3> Round Six (2015 NCAA Men's Basketball Tournament) </h3>
 
         <div class="region">
         <?php

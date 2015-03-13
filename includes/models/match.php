@@ -251,8 +251,8 @@ class BracketPressMatchList {
 
         // Special case tournament bracket
         if ($id > 60)  {
-            if ($id == 61) $previous = array(60, 30);
-            if ($id == 62) $previous = array(15, 45);
+            if ($id == 61) $previous = array(15, 30);
+            if ($id == 62) $previous = array(45, 60);
             if ($id == 63) $previous = array(61, 62);
         }
 

@@ -2,13 +2,13 @@
 /*
 Plugin Name: BracketPress
 Description: Run and score a tournament bracket pool.
-Author: Scott Hack and Nick Temple
+Author: Scott Hack, Nick Temple, and Patrick Godbey
 Author URI: http://www.bracketpress.com
-Version: 1.6.3
+Version: 1.7.0
 */
 
 /*
-BracketPress, Copyright (C)2013  Nick Temple, Scott Hack
+BracketPress, Copyright (C)2015  Nick Temple, Scott Hack, and Patrick Godbey
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -310,7 +310,20 @@ final class BracketPress {
             );
             $this->update_option('edit_id', wp_insert_post($post));
         }
+        if(!get_option('bracketpress_options')){
+            update_option('bracketpress_options', 'a:14:{s:9:"master_id";s:1:"5";s:14:"leaderboard_id";i:6;s:7:"edit_id";i:7;s:19:"date_brackets_close";s:9:"3/20/2015";s:19:"time_brackets_close";s:5:"23:00";s:18:"points_first_round";s:1:"1";s:19:"points_second_round";s:1:"2";s:18:"points_third_round";s:1:"4";s:19:"points_fourth_round";s:1:"8";s:18:"points_fifth_round";s:2:"16";s:18:"points_sixth_round";s:2:"32";s:8:"template";s:1:"0";s:10:"edit_title";s:1:"1";s:22:"show_bracketpress_logo";s:2:"no";}');
+        }
 
+        update_option( 'bracketpress_regionname_1', 'SOUTH');
+        update_option( 'bracketpress_regionname_2', 'WEST');
+        update_option( 'bracketpress_regionname_3', 'EAST');
+        update_option( 'bracketpress_regionname_4', 'MIDWEST');
+
+        update_option( 'bracketpress_region_1', '1');
+        update_option( 'bracketpress_region_2', '2');
+        update_option( 'bracketpress_region_3', '3');
+        update_option( 'bracketpress_region_4', '4');
+        
         flush_rewrite_rules();
     }
 
@@ -360,6 +373,8 @@ final class BracketPress {
         add_action('manage_brackets_posts_custom_column', array($this, 'custom_columns'), 10, 2);
         add_filter('manage_edit-brackets_sortable_columns', array($this, 'sortable_columns'));
         add_filter('request', array($this, 'handle_custom_sorting'));
+        flush_rewrite_rules('TRUE');
+
     }
 
     function change_cols($cols) {
@@ -844,3 +859,46 @@ endif;
 
 
 
+function get_winners_fixed($match_id){
+        
+        $prev_match_ids1 = BracketPressMatchList::getPreviousMatch($match_id);
+        $matchlist1 = bracketpress()->matchlist;
+        if ($prev_match_ids1) {
+
+                $show_seed = false;
+
+                $prev_match = array();
+                $prev_match[0] = $matchlist1->getMatch($prev_match_ids1[0]);
+                $prev_match[1] = $matchlist1->getMatch($prev_match_ids1[1]);
+
+                $prev_winner = array(null, null);
+                $winnerlist = bracketpress()->winnerlist;
+                if ($winnerlist) {
+                    $prev_winner[0] = $winnerlist->getMatch($prev_match_ids1[0]);
+                    $prev_winner[1] = $winnerlist->getMatch($prev_match_ids1[1]);
+                }
+
+                $x1 = print_r($prev_match[0], true);
+                $x2 = print_r($prev_match[1], true);
+
+
+                $x1 = $prev_match[0]->points_awarded;
+                $x2 = $prev_match[1]->points_awarded;
+
+                if ($prev_match[0]->points_awarded == '0') {
+                    $class1 = 'lost';
+                    $winner1 = $prev_winner[0]->getWinner();
+
+                }
+                if ($prev_match[0]->points_awarded > 0) $class1 = 'won';
+
+                if ($prev_match[1]->points_awarded == '0') {
+                    $class2 = 'lost';
+                    $winner2 = $prev_winner[1]->getWinner();
+                }
+                if ($prev_match[1]->points_awarded > 0) $class2 = 'won';
+            }
+
+            $winners = array($winner1, $winner2);
+            return $winners;
+}

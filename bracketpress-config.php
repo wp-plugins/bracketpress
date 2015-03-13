@@ -25,6 +25,7 @@ define('BRACKETPRESS_REGION_WEST',    2);
 define('BRACKETPRESS_REGION_EAST',    3);
 define('BRACKETPRESS_REGION_MIDWEST', 4);
 
+
 //Region Positions
 define('BRACKETPRESS_REGION_1', get_option( 'bracketpress_region_1', '1'));
 define('BRACKETPRESS_REGION_2', get_option( 'bracketpress_region_2', '2'));

@@ -5,7 +5,7 @@
 <p>
     Don't want to mess with data entry? Rather have a beer than update scoring during the tournament?
     The <a href="http://www.bracketpress.com/downloads/bracketpress-pro-data-feed/" target="store">BracketPress Pro Data Plugin</a> automatically gives you sample data,
-    (from 2012), PLUS updates your teams with 2013 on Selection Data.
+    (from 2014), PLUS updates your teams with 2015 on Selection Data.
 </p>
 <p>
     Every time a game is played, the Pro
@@ -35,16 +35,12 @@
 <?php } 
 
 if($_REQUEST['changeposition'] && check_admin_referer( 'bracketpress_changeposition' )){
-   update_option( 'bracketpress_region_1', $_REQUEST['position1_value']);
     update_option( 'bracketpress_regionname_1', $_REQUEST['position1_name']);
 
-    update_option( 'bracketpress_region_2', $_REQUEST['position2_value']);
-    update_option( 'bracketpress_regionname_2', $_REQUEST['position2_name']);
+     update_option( 'bracketpress_regionname_2', $_REQUEST['position2_name']);
 
-    update_option( 'bracketpress_region_3', $_REQUEST['position3_value']);
     update_option( 'bracketpress_regionname_3', $_REQUEST['position3_name']);
 
-    update_option( 'bracketpress_region_4', $_REQUEST['position4_value']);
     update_option( 'bracketpress_regionname_4', $_REQUEST['position4_name']);
 
 }
@@ -67,59 +63,40 @@ get_option( 'bracketpress_region_4', '4').",".get_option( 'bracketpress_regionna
         <td>Position 1</td>
         <td><input type="text" name="position1_name" value="<?php echo get_option( 'bracketpress_regionname_1', 'SOUTH'); ?>"></td>
         <td>
-            <select name="position1_value">
-                <option value="1" <?php selected( get_option( 'bracketpress_region_1', '1'), 1 ); ?>>1</option>
-                <option value="2" <?php selected( get_option( 'bracketpress_region_1', '1'), 2 ); ?>>2</option>
-                <option value="3" <?php selected( get_option( 'bracketpress_region_1', '1'), 3 ); ?>>3</option>
-                <option value="4" <?php selected( get_option( 'bracketpress_region_1', '1'), 4 ); ?>>4</option>
-            </select>
         </td>
         <td></td>
         <td>Position 3</td>
         <td><input type="text" name="position3_name" value="<?php echo get_option( 'bracketpress_regionname_3', 'WEST'); ?>"></td>
         <td>
-            <select name="position3_value">
-                <option value="1" <?php selected( get_option( 'bracketpress_region_3', '1'), 1 ); ?>>1</option>
-                <option value="2" <?php selected( get_option( 'bracketpress_region_3', '2'), 2 ); ?>>2</option>
-                <option value="3" <?php selected( get_option( 'bracketpress_region_3', '3'), 3 ); ?>>3</option>
-                <option value="4" <?php selected( get_option( 'bracketpress_region_3', '4'), 4 ); ?>>4</option>
-            </select>
         </td>
     </tr>
     <tr>
         <td>Position 2</td>
         <td><input type="text" name="position2_name" value="<?php echo get_option( 'bracketpress_regionname_2', 'EAST'); ?>"></td>
         <td>
-            <select name="position2_value">
-                <option value="1" <?php selected( get_option( 'bracketpress_region_2', '1'), 1); ?>>1</option>
-                <option value="2" <?php selected( get_option( 'bracketpress_region_2', '2' ), 2); ?>>2</option>
-                <option value="3" <?php selected( get_option( 'bracketpress_region_2', '3' ), 3); ?>>3</option>
-                <option value="4" <?php selected( get_option( 'bracketpress_region_2', '4' ), 4); ?>>4</option>
-            </select>
         </td>
         <td></td>
         <td>Position 4</td>
         <td><input type="text" name="position4_name" value="<?php echo get_option( 'bracketpress_regionname_4', 'MIDWEST'); ?>"></td>
         <td>
-            <select name="position4_value">
-                <option value="1" <?php selected( get_option( 'bracketpress_region_4', '4'), 1 ); ?>>1</option>
-                <option value="2" <?php selected( get_option( 'bracketpress_region_4', '4'), 2 ); ?>>2</option>
-                <option value="3" <?php selected( get_option( 'bracketpress_region_4', '4'), 3 ); ?>>3</option>
-                <option value="4" <?php selected( get_option( 'bracketpress_region_4', '4'), 4 ); ?>>4</option>
-            </select>
         </td>
     </tr>
     <tr>
-        <td colspan="8" style="text-align:right;"><input type="submit" value="Save Position Changes"></td>
+        <td colspan="8" style="text-align:right;"><input type="submit" class="button-secondary" value="Save Region Labels"></td>
     </tr>
 </table>
 <?php wp_nonce_field( 'bracketpress_changeposition' ); ?>
 <input type="hidden" name="changeposition" value="TRUE">
 </form>
 
-
+<style>
+.team-data-table{
+    margin-right:30px;
+}
+</style>
 
 <form id="bracket_fillout_form" name="bracket_fillout_form" method="post">
+<input type="submit" class="button-primary" value="Save Changes" id="submit_the_form"/>
     <table cellpadding="10px">
 
     <?php
@@ -146,27 +123,36 @@ get_option( 'bracketpress_region_4', '4').",".get_option( 'bracketpress_regionna
             $selected_region[$team['region']] = "selected='selected'";
 
             $y = $i + 1;
+            
+
+           
+
+            
+            if($seed == 1){
+
+                if($team['region'] == 1 || $team['region'] == 3){
+                    echo '<table><tr><td><table class="team-data-table">';
+                }
+                if($team['region'] == 2 || $team['region'] == 4){
+                    echo '<td><table class="team-data-table">';
+                }
+                echo "<tr>
+                        <td><h4>Team</h4></td>
+                        <td><h4>Region</h4></td><td></td><td></td><td></td>
+                        <td><h4>Seed</h4></td>
+                    </tr>";
+            }
             ?>
+
             <tr>
                 <td>
-                    <label for="team_<?php echo $y; ?>">Team <?php echo $y; ?></label>
-                    <input type="text" id="team_<?php echo $y; ?>" name="team_<?php echo $y; ?>"
-                           value="<?php echo $team['name'] ?>"/>
+                    <input type="text" id="team_<?php echo $y; ?>" name="team_<?php echo $y; ?>" placeholder="Team <?php echo $y; ?>" value="<?php echo $team['name'] ?>"/>
+                </td>
+                <td colspan="4">
+                    <?php echo get_option( 'bracketpress_regionname_'.$team['region']); ?>
+
                 </td>
                 <td>
-                    <label for="region_<?php echo $y; ?>">Region</label>
-                    <select id="region_<?php echo $y; ?>" name="region_<?php echo $y; ?>">
-                        <?php
-                        echo "<option value=''>Choose a region</option>";
-                        echo "<option value='1' {$selected_region[1]}>".BRACKETPRESS_REGION_NAME_1."</option>";
-                        echo "<option value='2' {$selected_region[2]}>".BRACKETPRESS_REGION_NAME_2."</option>";
-                        echo "<option value='3' {$selected_region[3]}>".BRACKETPRESS_REGION_NAME_3."</option>";
-                        echo "<option value='4' {$selected_region[4]}>".BRACKETPRESS_REGION_NAME_4."</option>";
-                        ?>
-                    </select>
-                </td>
-                <td>
-                    <label for="seed_<?php echo $y; ?>">Seed</label>
                     <select id="seed_<?php echo $y; ?>" name="seed_<?php echo $y; ?>">
                         <option value="<?php echo $team['seed']; ?>"><?php echo $team['seed'];?></option>
                         <option value="1">1</option>
@@ -187,16 +173,22 @@ get_option( 'bracketpress_region_4', '4').",".get_option( 'bracketpress_regionna
                         <option value="16">16</option>
                     </select>
                 </td>
-                <td>
-                    <label for="conference_<?php echo $y; ?>">Conference</label>
-                    <input type="text" id="conference_<?php echo $y; ?>" name="conference_<?php echo $y; ?>" value="<?php echo $team['conference'] ?>"/>
-                </td>
 
             </tr>
             <?php
+            if($seed == 16){
+
+                if($team['region'] == 1 || $team['region'] == 3){
+                    echo "</table></td>";
+                }
+                if($team['region'] == 2 || $team['region'] == 4){
+                    echo "</table></td></tr></table>";
+                }
+            }
+            $rowcount++;
         }
         ?>
     </table>
     <input type='hidden' id='form_submitter' name='form_submitter'/>
-    <input type="submit" value="Submit" id="submit_the_form"/>
+    <input type="submit" class="button-primary" value="Save Changes" id="submit_the_form"/>
 </form>
