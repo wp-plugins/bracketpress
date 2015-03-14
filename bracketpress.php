@@ -2,13 +2,13 @@
 /*
 Plugin Name: BracketPress
 Description: Run and score a tournament bracket pool.
-Author: Scott Hack, Nick Temple, and Patrick Godbey
+Author: Scott Hack, Nick Temple and Patrick Godbey
 Author URI: http://www.bracketpress.com
-Version: 1.7.0
+Version: 1.7.1
 */
 
 /*
-BracketPress, Copyright (C)2015  Nick Temple, Scott Hack, and Patrick Godbey
+BracketPress, Copyright (C)2015  Nick Temple, Scott Hack, Patrick Godbey
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -324,7 +324,12 @@ final class BracketPress {
         update_option( 'bracketpress_region_3', '3');
         update_option( 'bracketpress_region_4', '4');
         
-        flush_rewrite_rules();
+        if ( ! get_option( 'bracketpress_flush_flag' ) ) {
+            add_option( 'bracketpress_flush_flag', true );
+        }
+
+
+
     }
 
     function deactivate() {   }
@@ -373,7 +378,15 @@ final class BracketPress {
         add_action('manage_brackets_posts_custom_column', array($this, 'custom_columns'), 10, 2);
         add_filter('manage_edit-brackets_sortable_columns', array($this, 'sortable_columns'));
         add_filter('request', array($this, 'handle_custom_sorting'));
-        flush_rewrite_rules('TRUE');
+
+        add_action( 'init', 'bracketpress_flush_flag_check', 20 );
+        function bracketpress_flush_flag_check() {
+            if ( get_option( 'bracketpress_flush_flag' ) ) {
+                flush_rewrite_rules();
+                delete_option( 'bracketpress_flush_flag' );
+            }
+        }
+        
 
     }
 

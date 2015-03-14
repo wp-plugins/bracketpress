@@ -150,6 +150,7 @@ get_option( 'bracketpress_region_4', '4').",".get_option( 'bracketpress_regionna
                 </td>
                 <td colspan="4">
                     <?php echo get_option( 'bracketpress_regionname_'.$team['region']); ?>
+                    <input type="hidden" name="region_<?php echo $y; ?>" value="<?php echo $team['region']; ?>">
 
                 </td>
                 <td>

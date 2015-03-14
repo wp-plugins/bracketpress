@@ -51,6 +51,12 @@ brought it to life. See the file credits.txt for a full list of contributors.
 
 == Changelog ==
 
+= 1.7.1 =
+* Fixed conflict bug with WooCommerce.
+* Fixed bug causing permalink conflicts 2+ levels deep.
+* Changed the way we initiate the plugin to require less overhead.
+* Fixed bug that prevented team names from being changed after entered.
+
 = 1.7.0 =
 * Removed buggy positioning controls
 * Added and fixed region labeling
